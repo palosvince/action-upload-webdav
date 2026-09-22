@@ -47,7 +47,6 @@ export async function run(): Promise<Operator | undefined> {
     const config = new Config()
 
     core.debug(`provider: ${config.provider}`)
-    core.debug(`provider options: ${JSON.stringify(config.options)}`)
     core.debug(`include patterns: ${JSON.stringify(config.patterns)}`)
     core.debug(`flatten: ${config.flatten}`)
 
@@ -66,8 +65,11 @@ export async function run(): Promise<Operator | undefined> {
 
     core.endGroup()
     return op
-  } catch (error) {
-    core.error(`Upload files failed: ${error}`)
+  } catch (error: unknown) {
+    core.error('Upload files failed')
+    core.debug(
+      `Upload failure type: ${error instanceof Error ? error.name : 'Unknown'}`
+    )
     core.setFailed('Upload files failed')
   }
 }

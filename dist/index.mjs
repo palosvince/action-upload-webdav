@@ -19010,7 +19010,6 @@ async function run() {
 	try {
 		const config = new Config();
 		debug(`provider: ${config.provider}`);
-		debug(`provider options: ${JSON.stringify(config.options)}`);
 		debug(`include patterns: ${JSON.stringify(config.patterns)}`);
 		debug(`flatten: ${config.flatten}`);
 		startGroup(`Upload files to ${config.provider} start`);
@@ -19025,7 +19024,8 @@ async function run() {
 		endGroup();
 		return op;
 	} catch (error$1) {
-		error(`Upload files failed: ${error$1}`);
+		error("Upload files failed");
+		debug(`Upload failure type: ${error$1 instanceof Error ? error$1.name : "Unknown"}`);
 		setFailed("Upload files failed");
 	}
 }
