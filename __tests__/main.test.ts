@@ -48,4 +48,38 @@ describe('test basic function', () => {
     )
     expect(core.setFailed).not.toHaveBeenCalled()
   })
+
+  test('does not log provider options values', async () => {
+    const secret = 'super-secret-value'
+    setInput('provider', 'memory')
+    setInput('provider_options', `custom=${secret}\naccess=test-access-key`)
+    setInput('include', '__tests__/**/temp\n!node_modules/**')
+    setInput('flatten', 'true')
+
+    await run()
+
+    const debugMessages = core.debug.mock.calls.map(([msg]) => String(msg))
+    expect(
+      debugMessages.some((msg) => msg.includes('provider options:'))
+    ).toBeFalsy()
+    expect(debugMessages.some((msg) => msg.includes(secret))).toBeFalsy()
+  })
+
+  test('logs generic error and only failure type on upload errors', async () => {
+    setInput('provider', 'invalid-provider')
+    setInput('provider_options', 'token=abc123')
+    setInput('include', '__tests__/**/temp\n!node_modules/**')
+    setInput('flatten', 'true')
+
+    await run()
+
+    expect(core.error).toHaveBeenCalledWith('Upload files failed')
+    expect(core.setFailed).toHaveBeenCalledWith('Upload files failed')
+
+    const debugMessages = core.debug.mock.calls.map(([msg]) => String(msg))
+    expect(
+      debugMessages.some((msg) => msg.includes('Upload failure type:'))
+    ).toBeTruthy()
+    expect(debugMessages.some((msg) => msg.includes('abc123'))).toBeFalsy()
+  })
 })
